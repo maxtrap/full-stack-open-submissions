@@ -1,15 +1,14 @@
-const Hello = () => (
+const Hello = (props) => (
   <div>
-    <p>Hello world</p>
+    <p>Hello {props.name}</p>
   </div>
 )
 
 const App = () => (
   <div>
     <h1>Greetings human!</h1>
-    <Hello />
-    <Hello />
-    <Hello />
+    <Hello name='George' />
+    <Hello name='Yellow hat man' />
   </div>
 )
 
