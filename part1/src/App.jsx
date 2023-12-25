@@ -7,15 +7,17 @@ const Header = (props) => {
 const Content = (props) => {
   return (
     <div>
-      <p>
-        {props.p1} {props.e1}
-      </p><p>
-        {props.p2} {props.e2}
-      </p><p>
-        {props.p3} {props.e3}
-      </p>
+      <Part part={props.p1} ex={props.e1} />
+      <Part part={props.p2} ex={props.e2} />
+      <Part part={props.p3} ex={props.e3} />
     </div>
   );
+}
+
+const Part = (props) => {
+  return (
+    <p>{props.part} {props.ex}</p>
+  )
 }
 
 const Total = (props) => {
