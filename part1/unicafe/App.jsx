@@ -2,10 +2,20 @@ import { useState } from 'react'
 
 const Header = ({ text }) => <h1>{text}</h1>;
 
-const Button = ({ onClick, text }) =><button onClick={onClick}>{text}</button>;
+const Button = ({ onClick, text }) => <button onClick={onClick}>{text}</button>;
 
 const DisplayStat = ({ text, stat, endtext }) => <p>{text}: {stat} {endtext}</p>
-  
+
+const Statistics = ({ good, neutral, bad, total }) => (
+  <div>
+    <DisplayStat text="good" stat={good} />
+    <DisplayStat text="neutral" stat={neutral} />
+    <DisplayStat text="bad" stat={bad} />
+    <DisplayStat text="all" stat={total} />
+    <DisplayStat text="average" stat={(good - bad) / total} />
+    <DisplayStat text="positive" stat={good / total * 100} endtext={"%"} />
+  </div>
+)
 
 
 const App = () => {
@@ -20,12 +30,12 @@ const App = () => {
     setGood(good + 1);
     setTotal(total + 1);
   };
-  
+
   const handleNeutral = () => {
     setNeutral(neutral + 1);
     setTotal(total + 1);
   };
-  
+
   const handleBad = () => {
     setBad(bad + 1);
     setTotal(total + 1);
@@ -41,12 +51,7 @@ const App = () => {
 
       <Header text="Statistics:" />
 
-      <DisplayStat text="good" stat={good} />
-      <DisplayStat text="neutral" stat={neutral} />
-      <DisplayStat text="bad" stat={bad} />
-      <DisplayStat text="all" stat={total} />
-      <DisplayStat text="average" stat={(good - bad) / total} />
-      <DisplayStat text="positive" stat={good / total * 100} endtext={"%"}/>
+      <Statistics good={good} neutral={neutral} bad={bad} total={total} />
     </div>
   )
 }
