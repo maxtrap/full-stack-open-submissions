@@ -4,7 +4,7 @@ const Header = ({ text }) => <h1>{text}</h1>;
 
 const Button = ({ onClick, text }) =><button onClick={onClick}>{text}</button>;
 
-const DisplayFeedback = ({ text, numRatings }) => <p>{text}: {numRatings}</p>
+const DisplayStat = ({ text, stat, endtext }) => <p>{text}: {stat} {endtext}</p>
   
 
 
@@ -14,19 +14,39 @@ const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
 
+  const [total, setTotal] = useState(0)
+
+  const handleGood = () => {
+    setGood(good + 1);
+    setTotal(total + 1);
+  };
+  
+  const handleNeutral = () => {
+    setNeutral(neutral + 1);
+    setTotal(total + 1);
+  };
+  
+  const handleBad = () => {
+    setBad(bad + 1);
+    setTotal(total + 1);
+  };
+
   return (
     <div>
       <Header text="Give your feedback:" />
 
-      <Button onClick={() => setGood(good + 1)} text="good" />
-      <Button onClick={() => setNeutral(neutral + 1)} text="neutral" />
-      <Button onClick={() => setBad(bad + 1)} text="bad" />
+      <Button onClick={() => handleGood()} text="good" />
+      <Button onClick={() => handleNeutral()} text="neutral" />
+      <Button onClick={() => handleBad()} text="bad" />
 
       <Header text="Statistics:" />
 
-      <DisplayFeedback text="good" numRatings={good} />
-      <DisplayFeedback text="neutral" numRatings={neutral} />
-      <DisplayFeedback text="bad" numRatings={bad} />
+      <DisplayStat text="good" stat={good} />
+      <DisplayStat text="neutral" stat={neutral} />
+      <DisplayStat text="bad" stat={bad} />
+      <DisplayStat text="all" stat={total} />
+      <DisplayStat text="average" stat={(good - bad) / total} />
+      <DisplayStat text="positive" stat={good / total * 100} endtext={"%"}/>
     </div>
   )
 }
