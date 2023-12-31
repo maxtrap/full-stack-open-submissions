@@ -20,6 +20,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilterName] = useState('')
   const [notifMessage, setNotifMessage] = useState(null);
+  const [notifColor, setNotifColor] = useState('green');
 
   const handleNameChange = event => {
     setNewName(event.target.value);
@@ -51,6 +52,10 @@ const App = () => {
             notify(`Changed ${returnedPerson.name}'s phone number`);
             setNewName('');
             setNewNumber('');
+          })
+          .catch(error => {
+            notify(`User ${newName} has already been deleted from the server`, 'red');
+            setPersons(persons.filter(p => p.name !== newName))
           });
       }
       return;
@@ -60,7 +65,7 @@ const App = () => {
       .addPerson(newPerson)
       .then(addedPerson => {
         setPersons(persons.concat(addedPerson));
-        notify(`Added ${addedPerson.name}`);
+        notify(`Added ${addedPerson.name}`, 'green');
         setNewName('');
         setNewNumber('');
       });
@@ -72,18 +77,22 @@ const App = () => {
     }
     personService
       .deletePerson(person.id)
-      .then(deletedPerson => setPersons(persons.filter(p => p.id !== person.id)))
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== person.id));
+        notify(`Successfully deleted ${person.name}`, 'green');
+      });
   };
 
-  const notify = message => {
+  const notify = (message, color) => {
     setNotifMessage(message);
+    setNotifColor(color);
     setTimeout(() => setNotifMessage(null), 5000);
   };
 
   return (
     <div>
       <h1>Phonebook</h1>
-      <Notification message={notifMessage} />
+      <Notification message={notifMessage} color={notifColor} />
       <Filter filterName={filterName} handleFilterChange={handleFilterChange} />
       <h2>Add a new</h2>
       <PersonForm
