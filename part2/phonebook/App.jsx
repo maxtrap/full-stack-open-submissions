@@ -3,6 +3,7 @@ import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import Notification from './components/Notification'
 import personService from './services/persons';
 
 
@@ -18,6 +19,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilterName] = useState('')
+  const [notifMessage, setNotifMessage] = useState(null);
 
   const handleNameChange = event => {
     setNewName(event.target.value);
@@ -44,7 +46,12 @@ const App = () => {
         const id = persons.find(p => p.name === newName).id;
         personService
           .updatePerson(id, newPerson)
-          .then(returnedPerson => setPersons(persons.map(p => p.id === id ? returnedPerson : p)));
+          .then(returnedPerson => {
+            setPersons(persons.map(p => p.id === id ? returnedPerson : p));
+            notify(`Changed ${returnedPerson.name}'s phone number`);
+            setNewName('');
+            setNewNumber('');
+          });
       }
       return;
     }
@@ -53,6 +60,7 @@ const App = () => {
       .addPerson(newPerson)
       .then(addedPerson => {
         setPersons(persons.concat(addedPerson));
+        notify(`Added ${addedPerson.name}`);
         setNewName('');
         setNewNumber('');
       });
@@ -67,11 +75,16 @@ const App = () => {
       .then(deletedPerson => setPersons(persons.filter(p => p.id !== person.id)))
   };
 
+  const notify = message => {
+    setNotifMessage(message);
+    setTimeout(() => setNotifMessage(null), 5000);
+  };
+
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={notifMessage} />
       <Filter filterName={filterName} handleFilterChange={handleFilterChange} />
-
       <h2>Add a new</h2>
       <PersonForm
         addPerson={addPerson}
@@ -82,7 +95,7 @@ const App = () => {
       />
 
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={filterName} handleDelete={handleDelete}/>
+      <Persons persons={persons} filter={filterName} handleDelete={handleDelete} />
     </div>
   )
 }
