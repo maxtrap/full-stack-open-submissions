@@ -3,6 +3,25 @@ import axios from 'axios';
 
 const getWeatherUrl = (lat, lon) => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_WEATHER_KEY}`;
 
+const WeatherDisplay = ({ country, weatherData }) => {
+  if (!weatherData) {
+    return (
+      <div>
+        <p>Loading weather data for {country.capital}...</p>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <h3>Weather in {country.capital}</h3>
+      <p>Temperature: {Math.round((weatherData.main.temp - 273.15) * 100) / 100}°C</p>
+      <img src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} alt='weather icon' />
+      <p>Wind: {weatherData.wind.speed} m/s</p>
+    </div>
+  );
+}
+
 const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCountry, weatherData }) => {
 
   if (!countries) {
@@ -21,7 +40,7 @@ const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCo
     );
   }
 
-  if (singleCountry && weatherData) {
+  if (singleCountry) {
     return (
       <div>
         <h2>{singleCountry.name.common}</h2>
@@ -34,10 +53,7 @@ const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCo
         </ul>
         <img src={singleCountry.flags.png} alt={singleCountry.flags.alt} />
 
-        <h3>Weather in {singleCountry.capital}</h3>
-        <p>Temperature: {Math.round((weatherData.main.temp - 273.15) * 100) / 100}°C</p>
-        <img src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} alt='weather icon' />
-        <p>Wind: {weatherData.wind.speed} m/s</p>
+        <WeatherDisplay country={singleCountry} weatherData={weatherData} />
       </div>
     );
   }
@@ -99,21 +115,23 @@ const App = () => {
       loadingCountry = countriesToDisplay[0];
       axios
         .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${countriesToDisplay[0]}`)
-        .then(response => {
-          const [lat, lon] = response.data.capitalInfo.latlng;
-          axios
-            .get(getWeatherUrl(lat, lon))
-            .then(weatherInfo => {
-              setSingleCountry(response.data);
-              setWeatherData(weatherInfo.data);
-            });
-        });
+        .then(response => setSingleCountry(response.data));
     } else if (singleCountry && countriesToDisplay.length !== 1) {
       setSingleCountry(null);
       setWeatherData(null);
     }
   }
 
+  useEffect(() => {
+    if (singleCountry) {
+      const [lat, lon] = singleCountry.capitalInfo.latlng;
+      axios
+        .get(getWeatherUrl(lat, lon))
+        .then(weatherInfo => {
+          setWeatherData(weatherInfo.data);
+        });
+    }
+  }, [singleCountry]);
 
 
   return (
