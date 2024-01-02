@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const CountryDisplay = ({ countries, singleCountry, loadingCountry }) => {
+const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCountry }) => {
 
   if (!countries) {
     return (
@@ -47,7 +47,11 @@ const CountryDisplay = ({ countries, singleCountry, loadingCountry }) => {
 
   return (
     <div>
-      {countries.map(c => <p key={c}>{c}</p>)}
+      {countries.map(c =>
+        <div key={c}>
+          {c}
+          <button onClick={() => showSingleCountry(c)}>show</button>
+        </div>)}
     </div>
   )
 };
@@ -61,8 +65,11 @@ const App = () => {
   const handleSearchChange = event => {
     const newSearchValue = event.target.value;
     setSearchValue(newSearchValue);
-
   };
+
+  const showSingleCountry = country => {
+    setSearchValue(country);
+  }
 
   useEffect(() => {
     axios
@@ -100,7 +107,12 @@ const App = () => {
         <label htmlFor='fcountries'>find countries </label>
         <input id='fcountries' value={searchValue} onChange={handleSearchChange} />
       </div>
-      <CountryDisplay countries={countriesToDisplay} singleCountry={singleCountry} loadingCountry={loadingCountry} />
+      <CountryDisplay
+        countries={countriesToDisplay}
+        singleCountry={singleCountry}
+        loadingCountry={loadingCountry}
+        showSingleCountry={showSingleCountry}
+      />
     </div>
   )
 }
