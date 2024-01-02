@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCountry }) => {
+const getWeatherUrl = (lat, lon) => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_WEATHER_KEY}`;
+
+const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCountry, weatherData }) => {
 
   if (!countries) {
     return (
@@ -19,7 +21,7 @@ const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCo
     );
   }
 
-  if (singleCountry) {
+  if (singleCountry && weatherData) {
     return (
       <div>
         <h2>{singleCountry.name.common}</h2>
@@ -31,6 +33,11 @@ const CountryDisplay = ({ countries, singleCountry, loadingCountry, showSingleCo
           {Object.values(singleCountry.languages).map(lang => <li key={lang}>{lang}</li>)}
         </ul>
         <img src={singleCountry.flags.png} alt={singleCountry.flags.alt} />
+
+        <h3>Weather in {singleCountry.capital}</h3>
+        <p>Temperature: {Math.round((weatherData.main.temp - 273.15) * 100) / 100}°C</p>
+        <img src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} alt='weather icon' />
+        <p>Wind: {weatherData.wind.speed} m/s</p>
       </div>
     );
   }
@@ -60,6 +67,7 @@ const App = () => {
   const [searchValue, setSearchValue] = useState('');
   const [countryList, setCountryList] = useState(null);
   const [singleCountry, setSingleCountry] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
 
 
   const handleSearchChange = event => {
@@ -67,7 +75,7 @@ const App = () => {
     setSearchValue(newSearchValue);
   };
 
-  const showSingleCountry = country => {
+  const handleSingleCountryShow = country => {
     setSearchValue(country);
   }
 
@@ -92,10 +100,17 @@ const App = () => {
       axios
         .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${countriesToDisplay[0]}`)
         .then(response => {
-          setSingleCountry(response.data);
+          const [lat, lon] = response.data.capitalInfo.latlng;
+          axios
+            .get(getWeatherUrl(lat, lon))
+            .then(weatherInfo => {
+              setSingleCountry(response.data);
+              setWeatherData(weatherInfo.data);
+            });
         });
     } else if (singleCountry && countriesToDisplay.length !== 1) {
       setSingleCountry(null);
+      setWeatherData(null);
     }
   }
 
@@ -111,7 +126,8 @@ const App = () => {
         countries={countriesToDisplay}
         singleCountry={singleCountry}
         loadingCountry={loadingCountry}
-        showSingleCountry={showSingleCountry}
+        showSingleCountry={handleSingleCountryShow}
+        weatherData={weatherData}
       />
     </div>
   )
